@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Project-Dijkstra</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+    }
+    #output p {
+      background: #eef;
+      padding: 5px;
+      border-radius: 3px;
+      margin: 5px 0;
+    }
+    button {
+      padding: 10px 20px;
+      font-size: 16px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Visualización del Algoritmo Dijkstra</h1>
+  <button id="startBtn">Iniciar Algoritmo Dijkstra</button>
+  <div id="output"></div>
+
+  <!-- Incluir el script de Socket.IO que se sirve automáticamente desde el servidor -->
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    // Establecer la conexión con el servidor a través de Socket.IO
+    const socket = io();
+
+    // Obtener los elementos del DOM
+    const btnStart = document.getElementById('startBtn');
+    const outputDiv = document.getElementById('output');
+
+    // Al hacer clic en el botón se emitirá el evento para iniciar el algoritmo
+    btnStart.addEventListener('click', () => {
+      // Emitir el evento "startAlgorithm" con el nodo fuente (por defecto 'A')
+      socket.emit('startAlgorithm', { source: 'A' });
+      outputDiv.innerHTML = '<p>Algoritmo iniciado...</p>';
+    });
+
+    // Escuchar y mostrar el estado de cada paso del algoritmo
+    socket.on('algorithmStep', (data) => {
+      console.log('Paso de algoritmo:', data);
+      const p = document.createElement('p');
+      p.textContent = `Nodo actual: ${data.current}, Distancias: ${JSON.stringify(data.distances)}`;
+      outputDiv.appendChild(p);
+    });
+
+    // Escuchar el evento que indica la finalización del algoritmo
+    socket.on('algorithmFinished', (data) => {
+      console.log('Algoritmo finalizado:', data);
+      const p = document.createElement('p');
+      p.textContent = `Algoritmo terminado. Resultado: ${JSON.stringify(data)}`;
+      outputDiv.appendChild(p);
+    });
+  </script>
+</body>
+</html>
